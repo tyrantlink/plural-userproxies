@@ -1,0 +1,32 @@
+[package]
+name = "plural-userproxies"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0"
+description = "Self-host /plu/ral userproxies"
+repository = "https://github.com/plural/plural-userproxies"
+
+[dependencies]
+color-eyre = { version = "0.6", default-features = false }
+crossterm = { version = "0.28", features = ["event-stream"] }
+ratatui = { version = "0.29", features = ["serde"] }
+tokio = { version = "1.44", features = ["rt-multi-thread"]}
+futures = { version = "0.3" }
+twilight-gateway = { version = "0.16" }
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", default-features = false }
+twilight-model = { version = "0.16" }
+itertools = { version = "0.14" }
+directories = { version = "6.0" }
+tui-input = { version = "0.11" }
+check-latest = { version = "1.0", default-features = false, features = ["async"] }
+
+[profile.release]
+strip = true
+lto = true
+panic = "abort"
+
+[[bin]]
+name = "plural-userproxies"
+path = "src/main.rs"
