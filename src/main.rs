@@ -1,13 +1,6 @@
 use crate::app::App;
 
 use check_latest::check_max_async;
-use crossterm::execute;
-use std::io::stdout;
-use crossterm::event::{
-    KeyboardEnhancementFlags,
-    PushKeyboardEnhancementFlags,
-    PopKeyboardEnhancementFlags
-};
 
 pub mod app;
 pub mod event;
@@ -18,14 +11,16 @@ pub mod config;
 async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
-    let mut stdout = stdout();
-
-    execute!(
-        stdout,
-        PushKeyboardEnhancementFlags(
-            KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
-        )
-    )?;
+    #[cfg(not(target_os = "windows"))]
+    {
+        let mut stdout = std::io::stdout();
+        crossterm::execute!(
+            stdout,
+            crossterm::event::PushKeyboardEnhancementFlags(
+                crossterm::event::KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
+            )
+        )?
+    }
 
     let terminal = ratatui::init();
     let mut app = App::new();
@@ -36,6 +31,12 @@ async fn main() -> color_eyre::Result<()> {
     
     let result = app.run(terminal).await;
     ratatui::restore();
-    execute!(stdout, PopKeyboardEnhancementFlags)?;
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let mut stdout = std::io::stdout();
+        crossterm::execute!(stdout, crossterm::event::PopKeyboardEnhancementFlags)?
+    }
+
     result
 }

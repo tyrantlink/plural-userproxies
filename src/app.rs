@@ -373,6 +373,10 @@ impl App {
     }
 
     pub fn handle_key_events(&mut self, key_event: KeyEvent) -> color_eyre::Result<()> {
+        if key_event.kind != crossterm::event::KeyEventKind::Press {
+            return Ok(())
+        }
+
         match key_event.code {
             KeyCode::Char('q') if key_event.modifiers == KeyModifiers::CONTROL => {
                 self.events.send(AppEvent::Quit)

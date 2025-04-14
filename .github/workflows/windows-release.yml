@@ -1,0 +1,70 @@
+name: Windows Release
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Cargo.toml'
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version_changed: ${{ steps.check_version.outputs.version_changed }}
+      version: ${{ steps.check_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Check if version changed
+        id: check_version
+        run: |
+          git diff HEAD^ HEAD -- Cargo.toml | grep -q '^+version' && \
+          echo "version_changed=true" >> $GITHUB_OUTPUT && \
+          VERSION=$(grep '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/') && \
+          echo "version=$VERSION" >> $GITHUB_OUTPUT || \
+          echo "version_changed=false" >> $GITHUB_OUTPUT
+
+  build-and-release:
+    needs: check-version
+    if: needs.check-version.outputs.version_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: x86_64-pc-windows-gnu
+          override: true
+
+      - name: Install MinGW
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64-x86-64
+
+      - name: Build for Windows
+        env:
+          RUST_MIN_STACK: 16777216
+        run: cargo build --release --target x86_64-pc-windows-gnu
+
+      - name: Get binary name from Cargo.toml
+        id: get_binary_name
+        run: |
+          BINARY_NAME=$(grep -m 1 "name" Cargo.toml | sed 's/name = "\(.*\)"/\1/')
+          echo "binary_name=$BINARY_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.check-version.outputs.version }}
+          name: Release v${{ needs.check-version.outputs.version }}
+          draft: false
+          prerelease: false
+          files: |
+            target/x86_64-pc-windows-gnu/release/${{ steps.get_binary_name.outputs.binary_name }}.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

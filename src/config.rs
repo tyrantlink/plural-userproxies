@@ -41,7 +41,9 @@ impl Default for Config {
             show_logs: false,
             status_selected: false,
             cursor: CursorPosition::default(),
-            accent_color: ratatui::style::Color::Magenta,
+            accent_color: if std::env::consts::OS == "windows" {
+                ratatui::style::Color::Yellow
+            } else { ratatui::style::Color::Magenta },
             show_accent_color: false,
             token: None,
             userproxy_data: HashMap::new(),

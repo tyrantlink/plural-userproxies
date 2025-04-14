@@ -30,8 +30,8 @@ impl Widget for &mut App {
                 "\n Please enter your self-hosting token.",
                 "\n You can generate a token by running the",
                 "/userproxy selfhost command in /plu/ral.",
-                "\n (In the terminal, you may need to",
-                " press Ctrl + Shift + V to paste)",
+                "\n In the terminal, you may need to press",
+                " Ctrl + Shift + V or right-click to paste",
                 "\n Press Escape or Ctrl + Q to quit."
             ].join(" \n ");
 
@@ -86,6 +86,7 @@ impl Widget for &mut App {
                         format!(" Update Available: {} ", version)
                     } else { "".to_string() })
                 .fg(self.config.accent_color)
+                .bold()
                 .into_right_aligned_line())
                 .borders(Borders::ALL));
 
