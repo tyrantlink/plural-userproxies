@@ -4,7 +4,7 @@ version = "0.1.2"
 edition = "2024"
 license = "GPL-3.0"
 description = "Self-host /plu/ral userproxies"
-repository = "https://github.com/plural/plural-userproxies"
+repository = "https://github.com/tyrantlink/plural-userproxies"
 
 [dependencies]
 color-eyre = { version = "0.6", default-features = false }
