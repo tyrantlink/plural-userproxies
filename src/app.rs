@@ -464,6 +464,7 @@ impl App {
             KeyCode::Enter if self.selected_userproxy().is_some() => self
                 .events
                 .send(AppEvent::ToggleConfig(ConfigOption::StatusSelected(false))),
+            KeyCode::Up => self.events.send(AppEvent::ScrollUp),
             KeyCode::Down => self.events.send(AppEvent::ScrollDown),
             KeyCode::Left => self
                 .events
@@ -475,8 +476,7 @@ impl App {
             KeyCode::Char(c) if key_event.modifiers.bits() <= 1 => {
                 self.events.send(AppEvent::QueryInput(c.to_string()))
             }
-            _ => {
-            }
+            _ => {}
         }
         Ok(())
     }
